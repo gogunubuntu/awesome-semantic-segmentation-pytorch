@@ -196,6 +196,7 @@ def parse_args():
             "pascal_voc": 50,
             "pcontext": 80,
             "ade20k": 160,
+            "ade20k_gnd": 160,
             "citys": 120,
             "sbu": 160,
         }
@@ -207,6 +208,7 @@ def parse_args():
             "pascal_voc": 0.0001,
             "pcontext": 0.001,
             "ade20k": 0.01,
+            "ade20k_gnd": 0.01,
             "citys": 0.01,
             "sbu": 0.001,
         }

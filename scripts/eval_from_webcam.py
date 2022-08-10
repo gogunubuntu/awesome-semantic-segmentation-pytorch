@@ -84,10 +84,10 @@ class Evaluator(object):
         else:
             model = self.model
         file_names = os.listdir(self.img_dir)
-
+        cam = cv.videoCapture(0)
         for file_name in file_names:
-            img_full_path = os.path.join(self.img_dir, file_name)
-            np_image = cv.imread(img_full_path)
+            
+            np_image, ret = cam.read()# cv.imread(img_full_path)
             np_image = cv.resize(np_image, dsize=(640, 360))
             np_image_tp = np_image.transpose([2, 0, 1])
             np_image_tp = np.array([np_image_tp])
@@ -110,10 +110,7 @@ class Evaluator(object):
                 )
                 alpha = 0.7
                 saveimg = cv.addWeighted(saveimg, alpha, np_image, (1 - alpha), 0)
-                cv.imwrite(
-                    os.path.join(outdir, os.path.splitext(file_name)[0] + ".png"),
-                    np.uint8(saveimg),
-                )
+                cv.imshow("dasf", saveimg)
 
 
 if __name__ == "__main__":
