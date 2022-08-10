@@ -143,4 +143,4 @@ core/nn/sync_bn/lib/gpu/.ninja_deps
 *.png
 *.jpg
 *.pth
-datasets
+datasets/
