@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import sys
+from time import sleep, time
 
 cur_path = os.path.abspath(os.path.dirname(__file__))
 root_path = os.path.split(cur_path)[0]
@@ -11,7 +12,9 @@ import torch
 import torch.nn as nn
 import torch.utils.data as data
 import torch.backends.cudnn as cudnn
-
+import cv2 as cv
+import numpy as np
+import matplotlib.pyplot as plt
 from torchvision import transforms
 from core.data.dataloader import get_segmentation_dataset
 from core.models.model_zoo import get_segmentation_model
@@ -24,14 +27,14 @@ from core.utils.distributed import (
     make_data_sampler,
     make_batch_data_sampler,
 )
-
 from train import parse_args
 
 
 class Evaluator(object):
     def __init__(self, args):
         self.args = args
-        self.device = torch.device(args.device)
+        self.img_dir = args.eval_img_dir
+        self.device = "cpu"
 
         # image transform
         input_transform = transforms.Compose(
@@ -80,32 +83,37 @@ class Evaluator(object):
             model = self.model.module
         else:
             model = self.model
-        logger.info("Start validation, Total sample: {:d}".format(len(self.val_loader)))
-        for i, (image, target, filename) in enumerate(self.val_loader):
-            image = image.to(self.device)
-            print(image.shape)
-            target = target.to(self.device)
+        file_names = os.listdir(self.img_dir)
 
+        for file_name in file_names:
+            img_full_path = os.path.join(self.img_dir, file_name)
+            np_image = cv.imread(img_full_path)
+            np_image = cv.resize(np_image, dsize=(640, 360))
+            np_image_tp = np_image.transpose([2, 0, 1])
+            np_image_tp = np.array([np_image_tp])
+
+            image = torch.from_numpy(np_image_tp).to(self.device).to(torch.float)
+            image = image / 255  # * 6 - 3
             with torch.no_grad():
+                tic = time()
                 outputs = model(image)
-            self.metric.update(outputs[0], target)
-            pixAcc, mIoU = self.metric.get()
-            logger.info(
-                "Sample: {:d}, validation pixAcc: {:.3f}, mIoU: {:.3f}".format(
-                    i + 1, pixAcc * 100, mIoU * 100
-                )
-            )
-
             if self.args.save_pred:
                 pred = torch.argmax(outputs[0], 1)
+                toc = time()
+                print(f"{1 / (toc - tic)}hz")
                 pred = pred.cpu().data.numpy()
-
                 predict = pred.squeeze(0)
                 mask = get_color_pallete(predict, self.args.dataset)
-                mask.save(
-                    os.path.join(outdir, os.path.splitext(filename[0])[0] + ".png")
+                mask.save(os.path.join(outdir, os.path.splitext(file_name)[0] + ".png"))
+                saveimg = cv.imread(
+                    os.path.join(outdir, os.path.splitext(file_name)[0] + ".png")
                 )
-        synchronize()
+                alpha = 0.7
+                saveimg = cv.addWeighted(saveimg, alpha, np_image, (1 - alpha), 0)
+                cv.imwrite(
+                    os.path.join(outdir, os.path.splitext(file_name)[0] + ".png"),
+                    np.uint8(saveimg),
+                )
 
 
 if __name__ == "__main__":
@@ -142,4 +150,5 @@ if __name__ == "__main__":
 
     evaluator = Evaluator(args)
     evaluator.eval()
+
     torch.cuda.empty_cache()
