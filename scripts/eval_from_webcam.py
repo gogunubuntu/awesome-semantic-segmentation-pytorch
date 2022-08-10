@@ -111,6 +111,7 @@ class Evaluator(object):
                 alpha = 0.7
                 saveimg = cv.addWeighted(saveimg, alpha, np_image, (1 - alpha), 0)
                 cv.imshow("dasf", saveimg)
+                cv.waitKey(1)
 
 
 if __name__ == "__main__":
