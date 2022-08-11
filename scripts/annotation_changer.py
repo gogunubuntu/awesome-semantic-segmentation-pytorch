@@ -78,7 +78,9 @@ for i, fname in enumerate(train_annotation_files):
     mask_gnd = masking_ground(mask_gnd, 2)
     mask_gnd = cv.cvtColor(mask_gnd, cv.COLOR_BGR2GRAY)
     # print(fname.replace("training", "gh_train"))
-    cv.imwrite(fname.replace("training", "gh_train"), mask_human + mask_gnd)
+    mask_gh = mask_human + mask_gnd
+    mask_gh[mask_gh == 3] = 2
+    cv.imwrite(fname.replace("training", "gh_train"), mask_gh)
     if i % 100 == 0:
         print(f"{i}'th train img converted")
 
@@ -93,7 +95,9 @@ for i, fname in enumerate(valid_annotation_files):
     mask_gnd = masking_ground(mask_gnd, 2)
     mask_gnd = cv.cvtColor(mask_gnd, cv.COLOR_BGR2GRAY)
     # print(fname.replace("validaion", "gh_validation"))
-    cv.imwrite(fname.replace("validation", "gh_validation"), mask_human + mask_gnd)
+    mask_gh = mask_human + mask_gnd
+    mask_gh[mask_gh == 3] = 2
+    cv.imwrite(fname.replace("validation", "gh_validation"), mask_gh)
     if i % 100 == 0:
         print(f"{i}'th annotation img converted")
 print(id(img_anno))
