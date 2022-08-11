@@ -142,6 +142,7 @@ def get_deeplabv3(dataset='pascal_voc', backbone='resnet50', pretrained=False, r
         'pascal_voc': 'pascal_voc',
         'pascal_aug': 'pascal_aug',
         'ade20k': 'ade',
+        "ade20k_gnd": 'ade20k_gnd',
         'coco': 'coco',
         'citys': 'citys',
     }
@@ -149,7 +150,7 @@ def get_deeplabv3(dataset='pascal_voc', backbone='resnet50', pretrained=False, r
     model = DeepLabV3(datasets[dataset].NUM_CLASS, backbone=backbone, pretrained_base=pretrained_base, **kwargs)
     if pretrained:
         from .model_store import get_model_file
-        device = torch.device(kwargs['local_rank'])
+        device = "cuda"
         model.load_state_dict(torch.load(get_model_file('deeplabv3_%s_%s' % (backbone, acronyms[dataset]), root=root),
                               map_location=device))
     return model

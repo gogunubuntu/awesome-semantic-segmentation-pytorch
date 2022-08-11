@@ -93,7 +93,7 @@ class Evaluator(object):
             np_image_tp = np.array([np_image_tp])
 
             image = torch.from_numpy(np_image_tp).to(self.device).to(torch.float)
-            image = image / 255
+            image = image / 255 * 6 - 3
             with torch.no_grad():
                 tic = time()
                 outputs = model(image)
@@ -103,13 +103,20 @@ class Evaluator(object):
                 print(f"{1 / (toc - tic)}hz")
                 pred = pred.cpu().data.numpy()
                 predict = pred.squeeze(0)
+                predict = pred.squeeze(0)
                 mask = get_color_pallete(predict, self.args.dataset)
-                mask.save(os.path.join(outdir, os.path.splitext(file_name)[0] + ".png"))
-                saveimg = cv.imread(
-                    os.path.join(outdir, os.path.splitext(file_name)[0] + ".png")
-                )
-                alpha = 0.7
-                saveimg = cv.addWeighted(saveimg, alpha, np_image, (1 - alpha), 0)
+                print(predict.shape)
+                
+                # mask = get_color_pallete(predict, self.args.dataset)
+                # mask.save(os.path.join(outdir, os.path.splitext(file_name)[0] + ".png"))
+                # saveimg = cv.imread(
+                #     os.path.join(outdir, os.path.splitext(file_name)[0] + ".png")
+                # )
+                predict *= 200 
+                predict = predict.astype(np.uint8)
+                predict = cv.cvtColor(predict, cv.COLOR_GRAY2BGR)
+                alpha = 0.5
+                saveimg = cv.addWeighted(predict, alpha, np_image, (1 - alpha), 0)
                 cv.imwrite(
                     os.path.join(
                         outdir, "norm01" + os.path.splitext(file_name)[0] + ".png"

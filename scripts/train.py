@@ -81,7 +81,7 @@ def parse_args():
         "--dataset",
         type=str,
         default="pascal_voc",
-        choices=["pascal_voc", "pascal_aug", "ade20k", "ade20k_gnd", "citys", "sbu"],
+        choices=["pascal_voc", "pascal_aug", "ade20k", "ade20k_gnd","ade20k_gho","citys", "sbu"],
         help="dataset name (default: pascal_voc)",
     )
     parser.add_argument("--base-size", type=int, default=520, help="base image size")
@@ -198,6 +198,7 @@ def parse_args():
             "pcontext": 80,
             "ade20k": 160,
             "ade20k_gnd": 160,
+            "ade20k_gho": 160, 
             "citys": 120,
             "sbu": 160,
         }
@@ -210,6 +211,7 @@ def parse_args():
             "pcontext": 0.001,
             "ade20k": 0.01,
             "ade20k_gnd": 0.01,
+            "ade20k_gho": 0.01,
             "citys": 0.01,
             "sbu": 0.001,
         }
@@ -275,7 +277,6 @@ class Trainer(object):
             aux=args.aux,
             norm_layer=BatchNorm2d,
         ).to(self.device)
-        print(self.model)
 
         # resume checkpoint if needed
         if args.resume:
