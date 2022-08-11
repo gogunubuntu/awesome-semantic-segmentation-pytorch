@@ -125,6 +125,7 @@ def get_psp(dataset='pascal_voc', backbone='resnet50', pretrained=False, root='~
         'pascal_voc': 'pascal_voc',
         'pascal_aug': 'pascal_aug',
         'ade20k': 'ade20k',
+        'ade20k_gnd': 'ade20k_gnd',
         'coco': 'coco',
         'citys': 'citys',
     }

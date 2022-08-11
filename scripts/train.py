@@ -1,4 +1,5 @@
 import argparse
+from re import I
 import time
 import datetime
 import os
@@ -80,7 +81,7 @@ def parse_args():
         "--dataset",
         type=str,
         default="pascal_voc",
-        choices=["pascal_voc", "pascal_aug", "ade20k", "citys", "sbu"],
+        choices=["pascal_voc", "pascal_aug", "ade20k","ade20k_gnd", "citys", "sbu"],
         help="dataset name (default: pascal_voc)",
     )
     parser.add_argument("--base-size", type=int, default=520, help="base image size")
@@ -274,6 +275,7 @@ class Trainer(object):
             aux=args.aux,
             norm_layer=BatchNorm2d,
         ).to(self.device)
+        print(self.model)
 
         # resume checkpoint if needed
         if args.resume:
@@ -356,11 +358,24 @@ class Trainer(object):
         for iteration, (images, targets, _) in enumerate(self.train_loader):
             iteration = iteration + 1
             self.lr_scheduler.step()
-
+            for t in targets:print(t.shape)
             images = images.to(self.device)
             targets = targets.to(self.device)
+            print(0 in targets[0]) # torch.int64
+            '''
+            ade20k
+            output: torch.Size([2, 150, 480, 480])
+            target: torch.Size([480, 480])
+            '''
 
+            '''
+            ade20k_gnd
+            output: torch.Size([2, 2, 480, 480])
+            target: torch.Size([480, 480, 3])
+            '''
             outputs = self.model(images)
+            
+            # print(targets[0])    
             loss_dict = self.criterion(outputs, targets)
 
             losses = sum(loss for loss in loss_dict.values())
