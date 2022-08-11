@@ -82,7 +82,7 @@ class ADE20KSegmentationGho(SegmentationDataset):
     @property
     def classes(self):
         """Category names."""
-        return ("floor", "person")
+        return ("human", "ground", "unknown")
 
 
 def _get_ade20k_pairs(folder, mode='train'):

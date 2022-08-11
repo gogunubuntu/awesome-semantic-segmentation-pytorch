@@ -362,7 +362,6 @@ class Trainer(object):
             # for t in targets:print(t.shape)
             images = images.to(self.device)
             targets = targets.to(self.device)
-            # print(0 in targets[0]) # torch.int64
             """
             ade20k
             output: torch.Size([2, 150, 480, 480])
