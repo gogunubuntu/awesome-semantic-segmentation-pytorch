@@ -81,7 +81,16 @@ def parse_args():
         "--dataset",
         type=str,
         default="pascal_voc",
-        choices=["pascal_voc", "pascal_aug", "ade20k", "ade20k_gnd","ade20k_gho","citys", "sbu"],
+        choices=[
+            "pascal_voc",
+            "pascal_aug",
+            "ade20k",
+            "ade20k_gnd",
+            "ade20k_lres",
+            "ade20k_gho",
+            "citys",
+            "sbu",
+        ],
         help="dataset name (default: pascal_voc)",
     )
     parser.add_argument("--base-size", type=int, default=520, help="base image size")
@@ -198,7 +207,7 @@ def parse_args():
             "pcontext": 80,
             "ade20k": 160,
             "ade20k_gnd": 160,
-            "ade20k_gho": 160, 
+            "ade20k_gho": 160,
             "citys": 120,
             "sbu": 160,
         }

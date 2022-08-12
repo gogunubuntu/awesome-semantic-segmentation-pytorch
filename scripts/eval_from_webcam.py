@@ -19,7 +19,7 @@ from torchvision import transforms
 from core.data.dataloader import get_segmentation_dataset
 from core.models.model_zoo import get_segmentation_model
 from core.utils.score import SegmentationMetric
-from core.utils.visualize import get_color_pallete
+from core.utils.visualize import get_color_pallete, show_colorful_images
 from core.utils.logger import setup_logger
 from core.utils.distributed import (
     synchronize,
@@ -33,8 +33,7 @@ from train import parse_args
 class Evaluator(object):
     def __init__(self, args):
         self.args = args
-        self.img_dir = args.eval_img_dir
-        self.device = "cpu"
+        self.device = torch.device(args.device)
 
         # image transform
         input_transform = transforms.Compose(
@@ -83,35 +82,54 @@ class Evaluator(object):
             model = self.model.module
         else:
             model = self.model
-        file_names = os.listdir(self.img_dir)
-        cam = cv.videoCapture(0)
-        for file_name in file_names:
-            
-            np_image, ret = cam.read()# cv.imread(img_full_path)
-            np_image = cv.resize(np_image, dsize=(640, 360))
+
+        cam = cv.VideoCapture("/home/nscl2004/Videos/Webcam/2022-08-12-180736.mp4")
+        # cam = cv.VideoCapture(0)
+        toc = time()
+        sleep(1)
+        out = cv.VideoWriter(
+            "/home/nscl2004/Desktop/320240.mp4",
+            cv.VideoWriter_fourcc("M", "J", "P", "G"),
+            10,
+            (480 * 3, 320),
+        )
+        while True:
+            tic = time()
+            print(f"{1 / (tic - toc)}hz")
+            toc = tic
+            ret, np_image = cam.read()
+            print(ret)
+            if not ret:
+                break
+            np_image = cv.resize(np_image, dsize=(320, 240))
             np_image_tp = np_image.transpose([2, 0, 1])
             np_image_tp = np.array([np_image_tp])
 
             image = torch.from_numpy(np_image_tp).to(self.device).to(torch.float)
-            image = image / 255  # * 6 - 3
+            image = image / 255
             with torch.no_grad():
-                tic = time()
                 outputs = model(image)
             if self.args.save_pred:
                 pred = torch.argmax(outputs[0], 1)
-                toc = time()
-                print(f"{1 / (toc - tic)}hz")
                 pred = pred.cpu().data.numpy()
                 predict = pred.squeeze(0)
                 mask = get_color_pallete(predict, self.args.dataset)
-                mask.save(os.path.join(outdir, os.path.splitext(file_name)[0] + ".png"))
-                saveimg = cv.imread(
-                    os.path.join(outdir, os.path.splitext(file_name)[0] + ".png")
-                )
+                mask = cv.cvtColor(np.array(mask), cv.COLOR_GRAY2BGR) * 70
+
                 alpha = 0.7
-                saveimg = cv.addWeighted(saveimg, alpha, np_image, (1 - alpha), 0)
-                cv.imshow("dasf", saveimg)
+                overlap = cv.addWeighted(mask, alpha, np_image, (1 - alpha), 0)
+                save_frame = cv.resize(
+                    np.hstack([overlap, mask, np_image]), (480 * 3, 320)
+                )
+                out.write(save_frame)
+                cv.imshow("overlap", overlap)
+                cv.imshow("mask", mask)
+                cv.imshow("ori", np_image)
+                cv.imshow("ddd", save_frame)
+
                 cv.waitKey(1)
+        cam.release()
+        out.release
 
 
 if __name__ == "__main__":
