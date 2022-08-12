@@ -6,8 +6,16 @@ import torch.nn.functional as F
 from .segbase import SegBaseModel
 from .fcn import _FCNHead
 
-__all__ = ['PSPNet', 'get_psp', 'get_psp_resnet50_voc', 'get_psp_resnet50_ade', 'get_psp_resnet101_voc',
-           'get_psp_resnet101_ade', 'get_psp_resnet101_citys', 'get_psp_resnet101_coco']
+__all__ = [
+    "PSPNet",
+    "get_psp",
+    "get_psp_resnet50_voc",
+    "get_psp_resnet50_ade",
+    "get_psp_resnet101_voc",
+    "get_psp_resnet101_ade",
+    "get_psp_resnet101_citys",
+    "get_psp_resnet101_coco",
+]
 
 
 class PSPNet(SegBaseModel):
@@ -31,25 +39,29 @@ class PSPNet(SegBaseModel):
         "Pyramid scene parsing network." *CVPR*, 2017
     """
 
-    def __init__(self, nclass, backbone='resnet50', aux=False, pretrained_base=True, **kwargs):
-        super(PSPNet, self).__init__(nclass, aux, backbone, pretrained_base=pretrained_base, **kwargs)
+    def __init__(
+        self, nclass, backbone="resnet50", aux=False, pretrained_base=True, **kwargs
+    ):
+        super(PSPNet, self).__init__(
+            nclass, aux, backbone, pretrained_base=pretrained_base, **kwargs
+        )
         self.head = _PSPHead(nclass, **kwargs)
         if self.aux:
             self.auxlayer = _FCNHead(1024, nclass, **kwargs)
 
-        self.__setattr__('exclusive', ['head', 'auxlayer'] if aux else ['head'])
+        self.__setattr__("exclusive", ["head", "auxlayer"] if aux else ["head"])
 
     def forward(self, x):
         size = x.size()[2:]
         _, _, c3, c4 = self.base_forward(x)
         outputs = []
         x = self.head(c4)
-        x = F.interpolate(x, size, mode='bilinear', align_corners=True)
+        x = F.interpolate(x, size, mode="bilinear", align_corners=True)
         outputs.append(x)
 
         if self.aux:
             auxout = self.auxlayer(c3)
-            auxout = F.interpolate(auxout, size, mode='bilinear', align_corners=True)
+            auxout = F.interpolate(auxout, size, mode="bilinear", align_corners=True)
             outputs.append(auxout)
         return tuple(outputs)
 
@@ -58,7 +70,7 @@ def _PSP1x1Conv(in_channels, out_channels, norm_layer, norm_kwargs):
     return nn.Sequential(
         nn.Conv2d(in_channels, out_channels, 1, bias=False),
         norm_layer(out_channels, **({} if norm_kwargs is None else norm_kwargs)),
-        nn.ReLU(True)
+        nn.ReLU(True),
     )
 
 
@@ -77,10 +89,18 @@ class _PyramidPooling(nn.Module):
 
     def forward(self, x):
         size = x.size()[2:]
-        feat1 = F.interpolate(self.conv1(self.avgpool1(x)), size, mode='bilinear', align_corners=True)
-        feat2 = F.interpolate(self.conv2(self.avgpool2(x)), size, mode='bilinear', align_corners=True)
-        feat3 = F.interpolate(self.conv3(self.avgpool3(x)), size, mode='bilinear', align_corners=True)
-        feat4 = F.interpolate(self.conv4(self.avgpool4(x)), size, mode='bilinear', align_corners=True)
+        feat1 = F.interpolate(
+            self.conv1(self.avgpool1(x)), size, mode="bilinear", align_corners=True
+        )
+        feat2 = F.interpolate(
+            self.conv2(self.avgpool2(x)), size, mode="bilinear", align_corners=True
+        )
+        feat3 = F.interpolate(
+            self.conv3(self.avgpool3(x)), size, mode="bilinear", align_corners=True
+        )
+        feat4 = F.interpolate(
+            self.conv4(self.avgpool4(x)), size, mode="bilinear", align_corners=True
+        )
         return torch.cat([x, feat1, feat2, feat3, feat4], dim=1)
 
 
@@ -93,7 +113,7 @@ class _PSPHead(nn.Module):
             norm_layer(512, **({} if norm_kwargs is None else norm_kwargs)),
             nn.ReLU(True),
             nn.Dropout(0.1),
-            nn.Conv2d(512, nclass, 1)
+            nn.Conv2d(512, nclass, 1),
         )
 
     def forward(self, x):
@@ -101,8 +121,14 @@ class _PSPHead(nn.Module):
         return self.block(x)
 
 
-def get_psp(dataset='pascal_voc', backbone='resnet50', pretrained=False, root='~/.torch/models',
-            pretrained_base=True, **kwargs):
+def get_psp(
+    dataset="pascal_voc",
+    backbone="resnet50",
+    pretrained=False,
+    root="~/.torch/models",
+    pretrained_base=True,
+    **kwargs
+):
     r"""Pyramid Scene Parsing Network
 
     Parameters
@@ -122,48 +148,60 @@ def get_psp(dataset='pascal_voc', backbone='resnet50', pretrained=False, root='~
     >>> print(model)
     """
     acronyms = {
-        'pascal_voc': 'pascal_voc',
-        'pascal_aug': 'pascal_aug',
-        'ade20k': 'ade20k',
-        'ade20k_gnd': 'ade20k_gnd',
-        'coco': 'coco',
-        'citys': 'citys',
+        "pascal_voc": "pascal_voc",
+        "pascal_aug": "pascal_aug",
+        "ade20k": "ade20k",
+        "ade20k_gnd": "ade20k_gnd",
+        "ade20k_gho": "ade20k_gho",
+        "coco": "coco",
+        "citys": "citys",
     }
     from ..data.dataloader import datasets
-    model = PSPNet(datasets[dataset].NUM_CLASS, backbone=backbone, pretrained_base=pretrained_base, **kwargs)
+
+    model = PSPNet(
+        datasets[dataset].NUM_CLASS,
+        backbone=backbone,
+        pretrained_base=pretrained_base,
+        **kwargs
+    )
     if pretrained:
         from .model_store import get_model_file
+
         device = torch.device(0)
-        model.load_state_dict(torch.load(get_model_file('psp_%s_%s' % (backbone, acronyms[dataset]), root=root),
-                              map_location=device))
+        model.load_state_dict(
+            torch.load(
+                get_model_file("psp_%s_%s" % (backbone, acronyms[dataset]), root=root),
+                map_location=device,
+            )
+        )
     return model
 
 
 def get_psp_resnet50_voc(**kwargs):
-    return get_psp('pascal_voc', 'resnet50', **kwargs)
+    return get_psp("pascal_voc", "resnet50", **kwargs)
 
 
 def get_psp_resnet50_ade(**kwargs):
-    return get_psp('ade20k', 'resnet50', **kwargs)
+    return get_psp("ade20k", "resnet50", **kwargs)
 
 
 def get_psp_resnet101_voc(**kwargs):
-    return get_psp('pascal_voc', 'resnet101', **kwargs)
+    return get_psp("pascal_voc", "resnet101", **kwargs)
 
 
 def get_psp_resnet101_ade(**kwargs):
-    return get_psp('ade20k', 'resnet101', **kwargs)
+    return get_psp("ade20k", "resnet101", **kwargs)
 
 
 def get_psp_resnet101_citys(**kwargs):
-    return get_psp('citys', 'resnet101', **kwargs)
+    return get_psp("citys", "resnet101", **kwargs)
 
 
 def get_psp_resnet101_coco(**kwargs):
-    return get_psp('coco', 'resnet101', **kwargs)
+    return get_psp("coco", "resnet101", **kwargs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     model = get_psp_resnet50_voc()
     img = torch.randn(4, 3, 480, 480)
     output = model(img)
