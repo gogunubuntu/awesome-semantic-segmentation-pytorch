@@ -24,12 +24,23 @@ from core.utils.logger import setup_logger
 from core.utils.lr_scheduler import WarmupPolyLR
 from core.utils.score import SegmentationMetric
 
+from time import sleep
+
+
+def str2bool(boostr: str):
+    boostr = boostr.lower()
+    if boostr == "true":
+        return True
+    elif boostr == "false":
+        return False
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Semantic Segmentation Training With Pytorch"
     )
     # model and dataset
+
     parser.add_argument("--eval_img_dir", type=str, required=False)
     parser.add_argument(
         "--model",
@@ -88,6 +99,7 @@ def parse_args():
             "ade20k_gnd",
             "ade20k_lres",
             "ade20k_gho",
+            "sunrgbd",
             "citys",
             "sbu",
         ],
@@ -97,6 +109,12 @@ def parse_args():
     parser.add_argument("--crop-size", type=int, default=480, help="crop image size")
     parser.add_argument(
         "--workers", "-j", type=int, default=4, metavar="N", help="dataloader threads"
+    )
+    parser.add_argument(
+        "--video-file",
+        type=str,
+        default="",
+        required=False,
     )
     # training hyper params
     parser.add_argument("--jpu", action="store_true", default=False, help="JPU")
@@ -169,6 +187,12 @@ def parse_args():
         type=str,
         default=None,
         help="put the path to resuming file if needed",
+    )
+    parser.add_argument(
+        "--save-pred",
+        type=str2bool,
+        default=False,
+        required=False,
     )
     parser.add_argument(
         "--save-dir",

@@ -7,13 +7,12 @@ from PIL import Image
 from .segbase import SegmentationDataset
 
 
-class ADE20KSegmentationlres(SegmentationDataset):
+class SunrgbdSegmentation(SegmentationDataset):
     """ADE20K Semantic Segmentation Dataset.
 
     Parameters
     ----------
     root : string
-        Path to ADE20K folder. Default is './datasets/ade'
     split: string
         'train', 'val' or 'test'
     transform : callable, optional
@@ -35,18 +34,18 @@ class ADE20KSegmentationlres(SegmentationDataset):
     >>>     num_workers=4)
     """
 
-    BASE_DIR = "ADEChallengeData2016"
+    BASE_DIR = "SUNRGBD"
     NUM_CLASS = 3
 
     def __init__(
         self,
-        root="../datasets/ade_gnd",
+        root="../datasets/sunrgbd",
         split="test",
         mode=None,
         transform=None,
         **kwargs
     ):
-        super(ADE20KSegmentationlres, self).__init__(
+        super(SunrgbdSegmentation, self).__init__(
             root, split, mode, transform, **kwargs
         )
         root = os.path.join(root, self.BASE_DIR)
@@ -101,11 +100,11 @@ def _get_ade20k_pairs(folder, mode="train"):
     img_paths = []
     mask_paths = []
     if mode == "train":
-        img_folder = os.path.join(folder, "images/training")
-        mask_folder = os.path.join(folder, "annotations/lres_train")
+        img_folder = os.path.join(folder, "images/train")
+        mask_folder = os.path.join(folder, "annotations/train")
     else:
         img_folder = os.path.join(folder, "images/validation")
-        mask_folder = os.path.join(folder, "annotations/lres_validation")
+        mask_folder = os.path.join(folder, "annotations/validation")
     for filename in os.listdir(img_folder):
         basename, _ = os.path.splitext(filename)
         if filename.endswith(".jpg"):
@@ -122,4 +121,4 @@ def _get_ade20k_pairs(folder, mode="train"):
 
 
 if __name__ == "__main__":
-    train_dataset = ADE20KSegmentationlres()
+    train_dataset = SunrgbdSegmentation()

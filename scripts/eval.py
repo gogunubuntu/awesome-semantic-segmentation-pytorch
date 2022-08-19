@@ -99,9 +99,9 @@ class Evaluator(object):
             if self.args.save_pred:
                 pred = torch.argmax(outputs[0], 1)
                 pred = pred.cpu().data.numpy()
-
                 predict = pred.squeeze(0)
                 mask = get_color_pallete(predict, self.args.dataset)
+
                 mask.save(
                     os.path.join(outdir, os.path.splitext(filename[0])[0] + ".png")
                 )
@@ -124,7 +124,7 @@ if __name__ == "__main__":
         synchronize()
 
     # TODO: optim code
-    args.save_pred = True
+    #     args.save_pred = True
     if args.save_pred:
         outdir = "../runs/pred_pic/{}_{}_{}".format(
             args.model, args.backbone, args.dataset
