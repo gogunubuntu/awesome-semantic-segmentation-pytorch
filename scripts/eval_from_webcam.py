@@ -85,6 +85,7 @@ class Evaluator(object):
         self.model.to(self.device)
 
     def eval(self):
+
         self.model.eval()
         if self.args.distributed:
             model = self.model.module
@@ -103,9 +104,9 @@ class Evaluator(object):
             cam = cv.VideoCapture(sample_full_path)
             if self.args.save_pred:
                 out = cv.VideoWriter(
-                    sample_full_path.replace(".mp4", "sunrgbd.mp4").replace(
-                        "samples", "results"
-                    ),
+                    sample_full_path.replace(
+                        ".mp4", f"{self.args.tag}.mp4"
+                    ).replace("samples", "results"),
                     cv.VideoWriter_fourcc("M", "J", "P", "G"),
                     20,
                     (320 * 2, 240),

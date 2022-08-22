@@ -42,6 +42,8 @@ def parse_args():
     # model and dataset
 
     parser.add_argument("--eval_img_dir", type=str, required=False)
+    parser.add_argument("--tag", type=str, required=False)
+
     parser.add_argument(
         "--model",
         type=str,
