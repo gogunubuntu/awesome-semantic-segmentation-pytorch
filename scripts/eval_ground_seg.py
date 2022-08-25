@@ -27,7 +27,7 @@ from core.utils.distributed import (
     make_data_sampler,
     make_batch_data_sampler,
 )
-from train import parse_args
+from core.utils.parser import parse_args
 
 
 class Evaluator(object):
@@ -106,13 +106,13 @@ class Evaluator(object):
                 predict = pred.squeeze(0)
                 mask = get_color_pallete(predict, self.args.dataset)
                 print(predict.shape)
-                
+
                 # mask = get_color_pallete(predict, self.args.dataset)
                 # mask.save(os.path.join(outdir, os.path.splitext(file_name)[0] + ".png"))
                 # saveimg = cv.imread(
                 #     os.path.join(outdir, os.path.splitext(file_name)[0] + ".png")
                 # )
-                predict *= 200 
+                predict *= 200
                 predict = predict.astype(np.uint8)
                 predict = cv.cvtColor(predict, cv.COLOR_GRAY2BGR)
                 alpha = 0.5

@@ -27,7 +27,7 @@ from core.utils.distributed import (
     make_data_sampler,
     make_batch_data_sampler,
 )
-from train import parse_args
+from core.utils.parser import parse_args
 
 
 class Evaluator(object):

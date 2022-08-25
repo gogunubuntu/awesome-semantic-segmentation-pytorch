@@ -32,24 +32,17 @@ from core.utils.distributed import (
     make_data_sampler,
     make_batch_data_sampler,
 )
-from train import parse_args
+from core.utils.parser import parse_args
 
-ret = 1.0635049780625927
+dist = np.array([[-0.3819334, 0.12612948, 0.0, 0.0, 0.0]])
 mtx = np.array(
     [
-        [454.14992519, 0.0, 330.13040917],
-        [0.0, 453.86658378, 273.88395007],
+        [437.42463275, 0.0, 332.89779006],
+        [0.0, 439.44704127, 225.56817512],
         [0.0, 0.0, 1.0],
     ]
 )
-dist = np.array([[-0.46692931, 0.29388721, -0.01096731, 0.00328268, -0.10274585]])
-newcameramtx = np.array(
-    [
-        [453.44033813, 0.0, 329.61458425],
-        [0.0, 452.92102051, 273.31335421],
-        [0.0, 0.0, 1.0],
-    ]
-)
+newmtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (640, 480), 0, (640, 480))
 
 
 class Evaluator(object):
@@ -104,9 +97,9 @@ class Evaluator(object):
             cam = cv.VideoCapture(sample_full_path)
             if self.args.save_pred:
                 out = cv.VideoWriter(
-                    sample_full_path.replace(
-                        ".mp4", f"{self.args.tag}.mp4"
-                    ).replace("samples", "results"),
+                    sample_full_path.replace(".mp4", f"{self.args.tag}.mp4").replace(
+                        "samples", "results"
+                    ),
                     cv.VideoWriter_fourcc("M", "J", "P", "G"),
                     20,
                     (320 * 2, 240),
@@ -117,7 +110,7 @@ class Evaluator(object):
                 # print(ret)
                 if not ret:
                     break
-                np_image = cv.undistort(np_image, mtx, dist, None, newcameramtx)
+                np_image = cv.undistort(np_image, mtx, dist, None, newmtx)
                 np_image = cv.resize(np_image, dsize=(320, 240))
                 np_image_tp = np_image.transpose([2, 0, 1])
                 np_image_tp = np.array([np_image_tp])
