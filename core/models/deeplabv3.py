@@ -170,6 +170,7 @@ def get_deeplabv3(
         "pascal_voc": "pascal_voc",
         "pascal_aug": "pascal_aug",
         "ade20k": "ade",
+        "sunrgbd": "sunrgbd",
         "ade20k_gnd": "ade20k_gnd",
         "ade20k_gho": "ade20k_gho",
         "coco": "coco",

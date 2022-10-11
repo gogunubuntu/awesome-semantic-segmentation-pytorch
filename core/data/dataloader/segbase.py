@@ -4,7 +4,7 @@ import numpy as np
 
 from PIL import Image, ImageOps, ImageFilter
 
-__all__ = ['SegmentationDataset']
+__all__ = ["SegmentationDataset"]
 
 
 class SegmentationDataset(object):
@@ -33,8 +33,8 @@ class SegmentationDataset(object):
         mask = mask.resize((ow, oh), Image.NEAREST)
         # center crop
         w, h = img.size
-        x1 = int(round((w - outsize) / 2.))
-        y1 = int(round((h - outsize) / 2.))
+        x1 = int(round((w - outsize) / 2.0))
+        y1 = int(round((h - outsize) / 2.0))
         img = img.crop((x1, y1, x1 + outsize, y1 + outsize))
         mask = mask.crop((x1, y1, x1 + outsize, y1 + outsize))
         # final transform
@@ -48,7 +48,9 @@ class SegmentationDataset(object):
             mask = mask.transpose(Image.FLIP_LEFT_RIGHT)
         crop_size = self.crop_size
         # random scale (short edge)
-        short_size = random.randint(int(self.base_size * 0.5), int(self.base_size * 2.0))
+        short_size = random.randint(
+            int(self.base_size * 0.5), int(self.base_size * 2.0)
+        )
         w, h = img.size
         if h > w:
             ow = short_size
@@ -81,7 +83,7 @@ class SegmentationDataset(object):
         return np.array(img)
 
     def _mask_transform(self, mask):
-        return np.array(mask).astype('int32')
+        return np.array(mask).astype("int32")
 
     @property
     def num_class(self):

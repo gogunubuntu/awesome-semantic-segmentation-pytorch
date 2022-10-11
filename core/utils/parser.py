@@ -54,6 +54,7 @@ def parse_args():
         choices=[
             "vgg16",
             "resnet18",
+            "resnet34",
             "resnet50",
             "resnet101",
             "resnet152",
@@ -76,6 +77,7 @@ def parse_args():
             "ade20k_lres",
             "ade20k_gho",
             "sunrgbd",
+            "sunrgbd_resized",
             "citys",
             "sbu",
         ],
