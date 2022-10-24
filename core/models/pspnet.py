@@ -152,6 +152,7 @@ def get_psp(
         "pascal_aug": "pascal_aug",
         "ade20k": "ade20k",
         "sunrgbd": "sunrgbd",
+        "sunrgbd_resized": "sunrgbd_resized",
         "ade20k_gnd": "ade20k_gnd",
         "ade20k_gho": "ade20k_gho",
         "coco": "coco",

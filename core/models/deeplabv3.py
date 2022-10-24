@@ -171,6 +171,7 @@ def get_deeplabv3(
         "pascal_aug": "pascal_aug",
         "ade20k": "ade",
         "sunrgbd": "sunrgbd",
+        "sunrgbd_resized": "sunrgbd_resized",
         "ade20k_gnd": "ade20k_gnd",
         "ade20k_gho": "ade20k_gho",
         "coco": "coco",
@@ -191,7 +192,8 @@ def get_deeplabv3(
         model.load_state_dict(
             torch.load(
                 get_model_file(
-                    "deeplabv3_%s_%s" % (backbone, acronyms[dataset]), root=root
+                    "deeplabv3_%s_%s" % (backbone, acronyms[dataset]),
+                    root=root,
                 ),
                 map_location=device,
             )
