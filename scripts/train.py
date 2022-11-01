@@ -513,7 +513,8 @@ if __name__ == "__main__":
     # reference maskrcnn-benchmark
     num_gpus = int(os.environ["WORLD_SIZE"]) if "WORLD_SIZE" in os.environ else 1
     args.num_gpus = num_gpus
-    args.distributed = num_gpus > 1
+    # args.distributed = num_gpus > 1
+    args.distributed = torch.cuda.device_count() > 1
     if not args.no_cuda and torch.cuda.is_available():
         cudnn.benchmark = True
         args.device = "cuda"
