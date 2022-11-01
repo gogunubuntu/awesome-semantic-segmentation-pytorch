@@ -514,18 +514,21 @@ if __name__ == "__main__":
     num_gpus = int(os.environ["WORLD_SIZE"]) if "WORLD_SIZE" in os.environ else 1
     args.num_gpus = num_gpus
     # args.distributed = num_gpus > 1
-    args.distributed = torch.cuda.device_count() > 1
-    if not args.no_cuda and torch.cuda.is_available():
-        cudnn.benchmark = True
-        args.device = "cuda"
-    else:
-        args.distributed = False
-        args.device = "cpu"
-    if args.distributed:
-        torch.cuda.set_device(args.local_rank)
-        torch.distributed.init_process_group(backend="nccl", init_method="env://")
-        synchronize()
-    args.lr = args.lr * num_gpus
+    # args.distributed = torch.cuda.device_count() > 1
+    # if not args.no_cuda and torch.cuda.is_available():
+    #     cudnn.benchmark = True
+    #     args.device = "cuda"
+    # else:
+    #     args.distributed = False
+    #     args.device = "cpu"
+    # if args.distributed:
+    #     torch.cuda.set_device(args.local_rank)
+    #     torch.distributed.init_process_group(backend="nccl", init_method="env://")
+    #     synchronize()
+    args.distributed = False
+    args.device = "cuda"
+    torch.cuda.set_device(args.local_rank)
+    # args.lr = args.lr * num_gpus
 
     logger = setup_logger(
         "semantic_segmentation",
