@@ -198,6 +198,12 @@ def parse_args():
         default=False,
         help="skip validation during training",
     )
+    parser.add_argument(
+        "--imshow",
+        type = str2bool,
+        default=True,
+        required=False
+    )
     args = parser.parse_args()
 
     # default settings for epochs, batch_size and lr
