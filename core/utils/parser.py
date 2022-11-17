@@ -21,7 +21,7 @@ def parse_args():
     parser.add_argument(
         "--model",
         type=str,
-        default="fcn",
+        default="deeplabv3",
         choices=[
             "fcn32s",
             "fcn16s",
@@ -50,7 +50,7 @@ def parse_args():
     parser.add_argument(
         "--backbone",
         type=str,
-        default="resnet50",
+        default="resnet152",
         choices=[
             "vgg16",
             "resnet18",
@@ -68,7 +68,7 @@ def parse_args():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="pascal_voc",
+        default="sunrgbd_resized",
         choices=[
             "pascal_voc",
             "pascal_aug",
@@ -198,12 +198,7 @@ def parse_args():
         default=False,
         help="skip validation during training",
     )
-    parser.add_argument(
-        "--imshow",
-        type = str2bool,
-        default=True,
-        required=False
-    )
+    parser.add_argument("--imshow", type=str2bool, default=True, required=False)
     args = parser.parse_args()
 
     # default settings for epochs, batch_size and lr
